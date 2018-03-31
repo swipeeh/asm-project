@@ -5,6 +5,7 @@
 ; Author : Patrik
 ;
 
+/*
 SETUP:
 
 	ldi		r16, 0xff				;inserting 1111_1111 value into r16       
@@ -22,13 +23,11 @@ SETUP:
 	ldi		r16, low(RAMEND)
 	out		spl, r16
 	
-	/*
-	IN r18, pinb
-	OUT porta, r18*/
+	
 
 start:
 	out		porta, r18;
-
+	
 
 	in		r19, pinb
 
@@ -70,3 +69,56 @@ levelWon:
 levelLost:
 	ldi		r17, 0b01010101
 	out		porta, r17
+
+	*/
+
+;
+; TestovaAplikacia.asm
+;
+; Created: 3/28/2018 22:18:32
+; Author : Patrik
+;
+
+
+	ldi		r16, 0xff				;inserting 1111_1111 value into r16       
+	ldi		r17, 0x00				;inserting 1111_1111 value into r17
+	out		ddra, r16				;configure pins from portA	== output
+	out		ddrb, r17				;configrue pins from portB	== input
+
+	ldi		r18, 0b11111110
+	ldi		r19, 0b11111011
+
+	start:
+	out porta, r18
+	call delay
+	out porta, r19
+	call delay
+
+
+	rjmp start
+	
+delay:		;delay function (for int i=0; i > 0; i--)
+	nop
+	push	r26
+	push	r27
+	push	r28
+	ldi		r26, 255
+loop1:
+	ldi		r27, 255
+loop2:
+	ldi		r28, 255
+loop3:
+	dec		r28
+	brne	loop3
+	dec		r27
+	brne	loop2
+	dec		r26
+	brne	loop1
+end:
+	pop		r28
+	pop		r27
+	pop		r26
+	ret
+
+level1:
+	
