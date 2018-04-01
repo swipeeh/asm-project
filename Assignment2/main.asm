@@ -81,35 +81,59 @@ levelLost:
 
 
 	ldi		r16, 0xff				;inserting 1111_1111 value into r16       
-	ldi		r17, 0x00				;inserting 1111_1111 value into r17
+	ldi		r17, 0x00				;inserting 0000_0000 value into r17
 	out		ddra, r16				;configure pins from portA	== output
 	out		ddrb, r17				;configrue pins from portB	== input
 
-	ldi		r18, 0b11111110
-	ldi		r19, 0b11111011
+	ldi		r18, 0b11111110			;first bit in sequence
+	ldi		r30, 0b11111110			;second bit in sequence
+	;ldi		r19, 0b11111011
+	ldi		r20, 0b11111111			;first answer
+	ldi		r21, 0b11111100			;second answer
+	ldi		r24, 0b11111100
+	ldi r29, 0b01111110
 
 	start:
-	out porta, r18
+	call level1
+	call level2
+	out porta, r16			;turns off all LEDs
 	call delay
-	out porta, r19
-	call delay
+	call check				;check the results
 
-
-	rjmp start
+	program_end:			;end of the program
+	rjmp program_end
 	
-delay:		;delay function (for int i=0; i > 0; i--)
+delay:						;delay in which user can provide an input
 	nop
 	push	r26
 	push	r27
 	push	r28
-	ldi		r26, 255
+	ldi		r26, 140			;number of iterations in the main loop
 loop1:
-	ldi		r27, 255
+	ldi		r27, 255		;number of iterations in the first nested loop
 loop2:
-	ldi		r28, 255
+	ldi		r28, 255		;number of iterations in the second nested loop
 loop3:
+	cp r20, r16				;check if user provided any input for first answer
+	brne second_position				;if input for first answer was provided, jump to second answer
+	in r20, pinb			;input for the first answer is stored
+	rjmp continue
+second:
+	out porta, r29
+	call delay2
+	out porta, r16
+
+	;call delay2
+	ldi r21, 0b11111111
+	rjmp continue
+second_position:
+	;cp r21, r16				;check if user provided any input for second answer
+	;brne end				;if input for first answer was provided, jump to the end
+	in r21, pinb			;input for the second answer is stored
+
+continue:
 	dec		r28
-	brne	loop3
+	brne	position
 	dec		r27
 	brne	loop2
 	dec		r26
@@ -120,5 +144,59 @@ end:
 	pop		r26
 	ret
 
+position:
+	cp r20, r16
+	breq loop3
+	cp r21, r24
+	breq second
+	cp r21, r16
+	breq second_position
+	rjmp end
+
 level1:
-	
+	ldi		r18, 0b11101111
+	out porta, r18
+	call delay2
+	ret
+
+level2:
+	ldi		r30, 0b10111111
+	out porta, r30
+	call delay2
+	ret
+
+check:
+	cp r18, r20				;check for first answer
+	brne false				;if answer is not correct, jump to "false" is made
+	cp r30, r21				;check for second answer
+	brne false				;if answer is not correct, jump to "false" is made
+true:
+	out porta, r17			;result if round is won / all led are on
+	ret
+false:
+	ldi		r31, 0b10101010	;sequence for lost game
+	out porta, r31			;result if game is lost
+	ret
+
+delay2:						;delay in which user can not provide an input
+	nop
+	push	r19
+	push	r22
+	push	r23
+	ldi		r19, 100			;number of iterations in the main loop
+loop1x:
+	ldi		r22, 255		;number of iterations in the first nested loop
+loop2x:
+	ldi		r23, 255		;number of iterations in the second nested loop
+loop3x:
+	dec		r23
+	brne	loop3x
+	dec		r22
+	brne	loop2x
+	dec		r19
+	brne	loop1x
+endx:
+	pop		r23
+	pop		r22
+	pop		r19
+	ret
