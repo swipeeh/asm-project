@@ -79,26 +79,26 @@ levelLost:
 ; Author : Patrik
 ;
 
-
-	ldi		r16, 0xff				;inserting 1111_1111 value into r16       
+ldi		r16, 0xff				;inserting 1111_1111 value into r16       
 	ldi		r17, 0x00				;inserting 0000_0000 value into r17
 	out		ddra, r16				;configure pins from portA	== output
 	out		ddrb, r17				;configrue pins from portB	== input
 
 	ldi		r18, 0b11111110			;first bit in sequence
 	ldi		r30, 0b11111110			;second bit in sequence
-	;ldi		r19, 0b11111011
+	ldi		r25, 0b11111110			;third bit in sequence
+
 	ldi		r20, 0b11111111			;first answer
 	ldi		r21, 0b11111100			;second answer
-	ldi		r24, 0b11111100
-	ldi r29, 0b01111110
+	ldi		r24, 0b11111100			;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	ldi		r29, 0b01111110			;input stored
 
 	start:
 	call level1
 	call level2
-	out porta, r16			;turns off all LEDs
-	call delay
-	call check				;check the results
+	;out porta, r16			;turns off all LEDs
+	;call delay
+	;call check				;check the results
 
 	program_end:			;end of the program
 	rjmp program_end
@@ -157,12 +157,33 @@ level1:
 	ldi		r18, 0b11101111
 	out porta, r18
 	call delay2
+
+	out porta, r16 ;turns off all LEDs
+
+	call delay
+	ldi r21, 0b11111000
+	ldi r21, 0b11111110
+	call check				;check the results
+
 	ret
 
 level2:
+	ldi		r20, 0b11111111 ;reset first input
+	ldi		r21, 0b11111100
+
+	ldi		r18, 0b11101111
+	out porta, r18
+	call delay2
+
 	ldi		r30, 0b10111111
 	out porta, r30
 	call delay2
+
+	out porta, r16 ;turns off all LEDs
+
+	call delay
+	call check				;check the results
+
 	ret
 
 check:
@@ -172,11 +193,15 @@ check:
 	brne false				;if answer is not correct, jump to "false" is made
 true:
 	out porta, r17			;result if round is won / all led are on
+	call delay2
+	out porta, r16
 	ret
 false:
 	ldi		r31, 0b10101010	;sequence for lost game
 	out porta, r31			;result if game is lost
-	ret
+	call delay2
+	out porta, r16
+	rjmp program_end
 
 delay2:						;delay in which user can not provide an input
 	nop
