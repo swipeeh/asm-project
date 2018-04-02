@@ -80,17 +80,24 @@ levelLost:
 ;
 
 ldi		r16, 0xff				;inserting 1111_1111 value into r16       
-	ldi		r17, 0x00				;inserting 0000_0000 value into r17
+	;ldi		r17, 0x00				;inserting 0000_0000 value into r17
 	out		ddra, r16				;configure pins from portA	== output
-	out		ddrb, r17				;configrue pins from portB	== input
+	ldi		r16, 0x00
+	out		ddrb, r16				;configrue pins from portB	== input
+	ldi		r16, 0xff
 
 	ldi		r18, 0b11111110			;first bit in sequence
-	ldi		r30, 0b11111110			;second bit in sequence
-	ldi		r25, 0b11111110			;third bit in sequence
+	;ldi		r30, 0b11111110			;second bit in sequence
+	;ldi		r25, 0b11111110			;third bit in sequence
 
 	ldi		r20, 0b11111111			;first answer
 	ldi		r21, 0b11111100			;second answer
-	ldi		r24, 0b11111100			;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	ldi		r25, 0b11111100			;third answer
+	ldi		r17, 0b11111100			;fourth answer
+	ldi		r24, 0b11111100			;5th answer
+	ldi		r30, 0b11111100			;6th answer
+
+	;ldi		r24, 0b11111100			;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
 	ldi		r29, 0b01111110			;input stored
 
 	start:
@@ -119,6 +126,7 @@ loop3:
 	in r20, pinb			;input for the first answer is stored
 	rjmp continue
 second:
+	ldi		r16, 0xff		;setting value back
 	out porta, r29
 	call delay2
 	out porta, r16
@@ -147,8 +155,10 @@ end:
 position:
 	cp r20, r16
 	breq loop3
-	cp r21, r24
+	ldi		r16, 0b11111100		;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	cp r21, r16
 	breq second
+	ldi		r16, 0xff			;setting value back
 	cp r21, r16
 	breq second_position
 	rjmp end
@@ -161,22 +171,22 @@ level1:
 	out porta, r16 ;turns off all LEDs
 
 	call delay
-	ldi r21, 0b11111000
-	ldi r21, 0b11111110
+	;ldi r21, 0b11111000
+	ldi r21, 0b10111111
 	call check				;check the results
 
 	ret
 
 level2:
 	ldi		r20, 0b11111111 ;reset first input
-	ldi		r21, 0b11111100
+	ldi		r21, 0b11111100	;reset second input
 
 	ldi		r18, 0b11101111
 	out porta, r18
 	call delay2
 
-	ldi		r30, 0b10111111
-	out porta, r30
+	ldi		r18, 0b10111111
+	out porta, r18
 	call delay2
 
 	out porta, r16 ;turns off all LEDs
@@ -187,13 +197,17 @@ level2:
 	ret
 
 check:
+	ldi		r18, 0b11101111
 	cp r18, r20				;check for first answer
 	brne false				;if answer is not correct, jump to "false" is made
-	cp r30, r21				;check for second answer
+	ldi		r18, 0b10111111
+	cp r18, r21				;check for second answer
 	brne false				;if answer is not correct, jump to "false" is made
 true:
-	out porta, r17			;result if round is won / all led are on
+	ldi		r16, 0x00
+	out porta, r16			;result if round is won / all led are on
 	call delay2
+	ldi		r16, 0xff
 	out porta, r16
 	ret
 false:
