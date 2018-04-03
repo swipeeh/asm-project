@@ -103,9 +103,10 @@ ldi		r16, 0xff				;inserting 1111_1111 value into r16
 	start:
 	call level1
 	call level2
-	;out porta, r16			;turns off all LEDs
-	;call delay
-	;call check				;check the results
+	call level3
+	call level4
+	call level5
+	call win
 
 	program_end:			;end of the program
 	rjmp program_end
@@ -135,9 +136,50 @@ second:
 	ldi r21, 0b11111111
 	rjmp continue
 second_position:
-	;cp r21, r16				;check if user provided any input for second answer
-	;brne end				;if input for first answer was provided, jump to the end
+	cp r21, r16				;check if user provided any input for second answer
+	brne third_position				;if input for first answer was provided, jump to the end
 	in r21, pinb			;input for the second answer is stored
+	rjmp continue
+third:
+	ldi		r16, 0xff		;setting value back
+	out porta, r29
+	call delay2
+	out porta, r16
+
+	ldi r25, 0b11111111
+	rjmp continue
+third_position:
+	cp r25, r16				;check if user provided any input for second answer
+	brne fourth_position				;if input for first answer was provided, jump to the end
+	in r25, pinb			;input for the second answer is stored
+	rjmp continue
+fourth:
+	ldi		r16, 0xff		;setting value back
+	out porta, r29
+	call delay2
+	out porta, r16
+
+	ldi r17, 0b11111111
+	rjmp continue
+fourth_position:
+	cp r17, r16				;check if user provided any input for second answer
+	brne fifth_position				;if input for first answer was provided, jump to the end
+	in r17, pinb			;input for the second answer is stored
+	rjmp continue
+
+fifth:
+	ldi		r16, 0xff		;setting value back
+	out porta, r29
+	call delay2
+	out porta, r16
+
+	ldi r24, 0b11111111
+	rjmp continue
+fifth_position:
+	;cp r24, r16				;check if user provided any input for second answer
+	;brne sixth_position				;if input for first answer was provided, jump to the end
+	in r24, pinb			;input for the second answer is stored
+	;rjmp continue
 
 continue:
 	dec		r28
@@ -161,6 +203,27 @@ position:
 	ldi		r16, 0xff			;setting value back
 	cp r21, r16
 	breq second_position
+
+	ldi		r16, 0b11111100		;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	cp r25, r16
+	breq third
+	ldi		r16, 0xff			;setting value back
+	cp r25, r16
+	breq third_position
+
+	ldi		r16, 0b11111100		;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	cp r17, r16
+	breq fourth
+	ldi		r16, 0xff			;setting value back
+	cp r17, r16
+	breq fourth_position
+
+	ldi		r16, 0b11111100		;delay checker, if input was provided a delay is required so the same input is not stored in multiple registers
+	cp r24, r16
+	breq fifth
+	ldi		r16, 0xff			;setting value back
+	cp r24, r16
+	breq fifth_position
 	rjmp end
 
 level1:
@@ -169,10 +232,13 @@ level1:
 	call delay2
 
 	out porta, r16 ;turns off all LEDs
-
+	ldi		r21, 0b10111111
+	ldi		r25, 0b11111101
+	ldi		r17, 0b11111110
+	ldi		r24, 0b01111111
+	ldi		r30, 0b11111011
 	call delay
 	;ldi r21, 0b11111000
-	ldi r21, 0b10111111
 	call check				;check the results
 
 	ret
@@ -191,6 +257,100 @@ level2:
 
 	out porta, r16 ;turns off all LEDs
 
+	;ldi		r25, 0b11111101
+	;ldi		r17, 0b11111110
+	;ldi		r24, 0b01111111
+	;ldi		r30, 0b11111011
+	call delay
+	call check				;check the results
+
+	ret
+
+level3:
+	ldi		r20, 0b11111111 ;reset first input
+	ldi		r21, 0b11111100	;reset second input
+	ldi		r25, 0b11111100 ;reset third input
+
+	ldi		r18, 0b11101111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b10111111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b11111101
+	out porta, r18
+	call delay2
+
+	out porta, r16 ;turns off all LEDs
+
+	;ldi		r17, 0b11111110
+	;ldi		r24, 0b01111111
+	;ldi		r30, 0b11111011
+	call delay
+	call check				;check the results
+
+	ret
+
+level4:
+	ldi		r20, 0b11111111 ;reset first input
+	ldi		r21, 0b11111100	;reset second input
+	ldi		r25, 0b11111100 ;reset third input
+	ldi		r17, 0b11111100 ;reset 4th input
+
+	ldi		r18, 0b11101111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b10111111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b11111101
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b11111110
+	out porta, r18
+	call delay2
+
+	out porta, r16 ;turns off all LEDs
+
+	call delay
+	call check				;check the results
+
+	ret
+
+level5:
+	ldi		r20, 0b11111111 ;reset first input
+	ldi		r21, 0b11111100	;reset second input
+	ldi		r25, 0b11111100 ;reset third input
+	ldi		r17, 0b11111100 ;reset fourth input
+	ldi		r24, 0b11111100 ;reset fifth input
+
+	ldi		r18, 0b11101111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b10111111
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b11111101
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b11111110
+	out porta, r18
+	call delay2
+
+	ldi		r18, 0b01111111
+	out porta, r18
+	call delay2
+
+	out porta, r16 ;turns off all LEDs
+
 	call delay
 	call check				;check the results
 
@@ -202,6 +362,15 @@ check:
 	brne false				;if answer is not correct, jump to "false" is made
 	ldi		r18, 0b10111111
 	cp r18, r21				;check for second answer
+	brne false				;if answer is not correct, jump to "false" is made
+	ldi		r18, 0b11111101
+	cp r18, r25				;check for third answer
+	brne false				;if answer is not correct, jump to "false" is made
+	ldi		r18, 0b11111110
+	cp r18, r17				;check for fourth answer
+	brne false				;if answer is not correct, jump to "false" is made
+	ldi		r18, 0b01111111
+	cp r18, r24			;check for fifth answer
 	brne false				;if answer is not correct, jump to "false" is made
 true:
 	ldi		r16, 0x00
@@ -222,7 +391,7 @@ delay2:						;delay in which user can not provide an input
 	push	r19
 	push	r22
 	push	r23
-	ldi		r19, 100			;number of iterations in the main loop
+	ldi		r19, 60			;number of iterations in the main loop
 loop1x:
 	ldi		r22, 255		;number of iterations in the first nested loop
 loop2x:
@@ -235,6 +404,57 @@ loop3x:
 	dec		r19
 	brne	loop1x
 endx:
+	pop		r23
+	pop		r22
+	pop		r19
+	ret
+
+win:
+	out porta, r29
+	call delay2
+	ldi		r16, 0b10111101
+	out porta, r16
+	call delay2
+	ldi		r16, 0b11011011
+	out porta, r16
+	call delay2
+	ldi		r16, 0b11100111
+	out porta, r16
+	call delay2
+
+	ldi r30, 4
+flickering:
+	ldi		r16, 0b10101010
+	out porta, r16
+	call win_delay
+	ldi		r16, 0b01010101
+	out porta, r16
+	call win_delay
+	dec r30
+	brne flickering
+
+	ldi		r16, 0xff
+	out porta, r16
+	ret
+
+win_delay:						;delay in which user can not provide an input
+	nop
+	push	r19
+	push	r22
+	push	r23
+	ldi		r19, 10			;number of iterations in the main loop
+loop1a:
+	ldi		r22, 255		;number of iterations in the first nested loop
+loop2a:
+	ldi		r23, 255		;number of iterations in the second nested loop
+loop3a:
+	dec		r23
+	brne	loop3a
+	dec		r22
+	brne	loop2a
+	dec		r19
+	brne	loop1a
+enda:
 	pop		r23
 	pop		r22
 	pop		r19
